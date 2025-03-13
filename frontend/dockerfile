@@ -1,0 +1,8 @@
+# Usar una imagen de Nginx para servir archivos estáticos
+FROM nginx:latest
+
+# Copiar el contenido del frontend a la carpeta de Nginx
+COPY . /usr/share/nginx/html
+
+# Exponer el puerto 80 para acceder a la web
+EXPOSE 80

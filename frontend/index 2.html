@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .gallery img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: transform 0.2s;
+        }
+        .gallery img:hover {
+            transform: scale(1.1);
+        }
+        #fullscreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+        }
+        #fullscreen img {
+            max-width: 90%;
+            max-height: 90%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Galería de Imágenes</h1>
+    <div class="gallery" id="gallery"></div>
+
+    <!-- Modal para ver imágenes en pantalla completa -->
+    <div id="fullscreen">
+        <img id="fullscreen-img" src="" alt="">
+    </div>
+
+
+    <script>
+        // Cargar imágenes desde el backend
+        async function loadImages() {
+            const response = await fetch("http://localhost:8080/api/media/album/1");
+            const images = await response.json();
+            const gallery = document.getElementById("gallery");
+            gallery.innerHTML = ""; // Limpiar galería
+
+            images.forEach(img => {
+                const imageElement = document.createElement("img");
+                imageElement.src = "http://localhost:8080" + img.thumbnailUrl; 
+                imageElement.alt = img.nombreArchivo;
+                imageElement.onclick = () => openFullscreen("http://localhost:8080" + img.url);
+                gallery.appendChild(imageElement);
+            });
+        }
+
+        // Mostrar imagen en pantalla completa
+        function openFullscreen(src) {
+            const fullscreen = document.getElementById("fullscreen");
+            const fullscreenImg = document.getElementById("fullscreen-img");
+            fullscreenImg.src = src;
+            fullscreen.style.display = "flex";
+        }
+
+        // Cerrar imagen al hacer clic fuera de ella
+        document.getElementById("fullscreen").onclick = () => {
+            document.getElementById("fullscreen").style.display = "none";
+        };
+
+        // Cargar imágenes cuando se abra la página
+        loadImages();
+    </script>
+</body>
+</html>

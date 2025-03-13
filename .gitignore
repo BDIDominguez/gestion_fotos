@@ -1,0 +1,44 @@
+# Ignorar archivos de Docker
+**/docker/*.tar
+**/docker/*.tar.gz
+**/docker/*.log
+
+# Ignorar node_modules (si usas Node.js en el frontend)
+node_modules/
+
+# Ignorar archivos de entorno local
+.env
+.env.local
+.env.development
+.env.production
+
+# Ignorar archivos generados por el sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# Ignorar logs y directorios de dependencias
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignorar archivos de compilación
+dist/
+build/
+out/
+
+# Ignorar archivos de caché
+.cache/
+.temp/
+.tmp/
+
+# Ignorar archivos de base de datos local
+*.db
+*.sqlite

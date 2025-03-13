@@ -1,0 +1,50 @@
+#version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_photo_manager
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: dario
+      MYSQL_DATABASE: photo_manager
+      MYSQL_USER: dario
+      MYSQL_PASSWORD: dario
+    ports:
+      - "0.0.0.0:3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:  # ⬅️ Agregamos un chequeo de salud
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-udario", "-pdario"]
+      interval: 10s  # ⬅️ Verifica cada 10 segundos
+      retries: 5  # ⬅️ Reintenta 5 veces
+      start_period: 20s  # ⬅️ Espera hasta 20s para que arranque
+
+  backend:
+    build: ../bakend
+    container_name: backend
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy  # ⬅️ Espera a que MySQL esté listo antes de iniciar
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/photo_manager?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: dario
+      SPRING_DATASOURCE_PASSWORD: dario
+      SPRING_PROFILES_ACTIVE: docker # Se activa el perfil `docker`
+    ports:
+      - "0.0.0.0:8080:8080"
+    volumes:
+      - E:/Coleccion:/app/media # Mapeamos la carpeta de fotos dentro del contenedor
+
+  frontend:
+    build: ../frontend
+    container_name: frontend
+    restart: always
+    depends_on:
+      - backend  # ⬅️ El frontend espera a que el backend esté listo
+      #- mysql
+    ports:
+      - "0.0.0.0:3000:80"
+
+volumes:
+  mysql_data:

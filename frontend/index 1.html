@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+     <img src="http://localhost:8080/api/files/Vacaciones%202024/Vacaciones%202024_005.jpg" alt="Imagen del álbum">
+    <img src="http://localhost:8080/api/files/thumbnails/Vacaciones%202024/Vacaciones%202024_005_thumb.jpg" alt="Imagen del álbum">
+    <!--  2024_005
+    <h1>Subir imágenes a un álbum</h1>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" multiple>
+        <button type="submit">Subir</button>
+    </form>
+    <div id="status"></div>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let input = document.getElementById("fileInput");
+            let formData = new FormData();
+            for (let i = 0; i < input.files.length; i++) {
+                formData.append("files", input.files[i]);
+            }
+
+            fetch("http://localhost:8080/api/media/upload/1", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("status").innerHTML = "Imágenes subidas con éxito!";
+            })
+            .catch(error => console.error("Error subiendo imágenes:", error));
+        });
+    </script>
+    -->
+</body>
+</html>
