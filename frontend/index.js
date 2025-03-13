@@ -20,47 +20,39 @@ async function cargarAlbumes() {
 } 
 
 async function cargarFotos() {
-    console.log("Se preciono el Boton")
     let albumId = document.getElementById("albumesList").value;
     if (!albumId) {
         alert("Selecciona un álbum.");
         return;
     }
 
-    console.log("llamando al API  ", `${API_URL}/api/media/album/${albumId}`)
     let response = await fetch(`${API_URL}/api/media/album/${albumId}`);
     let archivos = await response.json();
-    console.log("Respuesta del API  ", archivos)
+
+    currentAlbum = archivos.slice();
 
     let gallery = document.getElementById("gallery");
     gallery.innerHTML = "";
 
-    console.log("Inicia el FOR")
-    archivos.forEach(archivo => {
-        console.log("Inicio del Siclo")
+    archivos.forEach((archivo, index) => {
         let contenedor = document.createElement("div");
         contenedor.classList.add("media-item");
-        console.log("Condicion")
 
         if (archivo.tipo === "imagen") {
-            console.log("TRUE")
             let img = document.createElement("img");
             img.src = API_URL + archivo.thumbnailUrl;
             img.alt = archivo.nombreArchivo;
-            console.log("MEDIO TRUE")
-            img.onclick = () => window.open(API_URL + archivo.url, "_blank");
-            //img.onclick = () => mostrarLightbox(index); // Muestra el lightbox
+            //img.onclick = () => window.open(API_URL + archivo.url, "_blank");
+            img.onclick = () => mostrarLightbox(index); // Muestra el lightbox
             contenedor.appendChild(img);
         } else if (archivo.tipo === "video") {
-            console.log("FALSE")
             let video = document.createElement("video");
             video.src = API_URL + archivo.url;
             video.controls = true;
-            console.log("Medio FALSE")
             video.width = 200; // Ajusta el tamaño como prefieras
+            video.onclick = () => mostrarLightbox(index);
             contenedor.appendChild(video);
         }
-
         gallery.appendChild(contenedor);
     });
 }
@@ -131,3 +123,60 @@ async function subirFotos() {
     }
 }
 
+/**   Funciones para el visor de imagens  */
+let currentImageIndex = 0;
+let currentAlbum = [];
+const lightbox = document.getElementById("lightbox");
+const lightboxImage = document.getElementById("lightboxImage");
+
+function mostrarLightbox(index) {
+    currentImageIndex = index;
+    cargarLightbox();
+    lightbox.style.display = "flex";
+}
+
+function cerrarLightbox() {
+    lightbox.style.display = "none";
+}
+
+function navegar(direction) {
+    currentImageIndex += direction;
+
+    // Ajustar el índice para navegar de forma circular
+    if (currentImageIndex < 0) currentImageIndex = currentAlbum.length - 1;
+    if (currentImageIndex >= currentAlbum.length) currentImageIndex = 0;
+
+    cargarLightbox();
+}
+
+function cargarLightbox() {
+    const archivo = currentAlbum[currentImageIndex];
+    const url = API_URL + archivo.url;
+    console.log("Cargando en el lightbox (URL): " + url);
+    
+    // Limpiar el contenido del lightbox antes de cargar
+    lightboxImage.innerHTML = "";
+  
+    if (archivo.tipo === "imagen") {
+        let img = document.createElement("img");
+        img.src = url;
+        img.alt = archivo.nombreArchivo;
+        img.style.maxWidth = "90%";
+        img.style.maxHeight = "80%";
+        img.style.objectFit = "contain";
+        lightboxImage.appendChild(img);
+        console.log("✅ Imagen añadida al lightbox");
+    } else if (archivo.tipo === "video") {
+        let video = document.createElement("video");
+        video.src = url;
+        video.controls = true;
+        video.autoplay = true;
+        video.style.maxWidth = "90%";
+        video.style.maxHeight = "80%";
+        video.style.objectFit = "contain";
+        lightboxImage.appendChild(video);
+        console.log("✅ Video añadido al lightbox");
+    }
+    lightbox.style.display = "flex";
+}
+    

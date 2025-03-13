@@ -36,12 +36,16 @@
     <!-- Contenedor de Lightbox -->
     <div id="lightbox" class="lightbox" onclick="cerrarLightbox()">
         <span class="close" onclick="cerrarLightbox()">&times;</span>
-        <img id="lightboxImage" class="lightbox-image" src="" alt="Imagen">
+        <div id="lightboxImage" class="lightbox-image-container">
+        <!-- Aquí se cargarán la imagen o el video -->
+        </div>
         <div class="lightbox-controls">
             <button onclick="navegar(-1)">&#10094;</button> <!-- Anterior -->
             <button onclick="navegar(1)">&#10095;</button>  <!-- Siguiente -->
         </div>
     </div>
+    
+
     <script src="index.js"></script>
 </body>
 </html>
