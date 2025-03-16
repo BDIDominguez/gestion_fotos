@@ -28,28 +28,19 @@ section {
     transform: scale(1.1);
 }
 
-.cabecera{
+.cabecera {
     display: flex;
     align-items: center;
-    justify-content: space-around
-
+    justify-content: space-around;
 }
 
 .contenedor_mostrar_contenido, .contenedor_albumes, .contenedor_cargar {
     display: flex;
     flex-direction: column;
-    /*
-    button {
-        margin-bottom: 10px;
-        margin-top: 10px;
-    }*/
     gap: 10px;
 }
 
-
-
-/*   Animacion  */
-
+/* Animación del spinner */
 #spinner {
     display: none;
     width: 30px;
@@ -66,8 +57,7 @@ section {
     100% { transform: rotate(360deg); }
 }
 
-/*   Venta de Vista maximizada de fotos   */
-
+/* Lightbox */
 .lightbox {
     display: none;
     position: fixed;
@@ -81,9 +71,18 @@ section {
     align-items: center;
 }
 
-.lightbox-image {
+.lightbox-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.lightbox img, .lightbox video {
     max-width: 90%;
     max-height: 80%;
+    object-fit: contain;
 }
 
 .lightbox-controls {
@@ -119,18 +118,4 @@ section {
 
 .close:hover {
     color: red;
-} 
-
-.lightbox-image-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-}
-
-.lightbox img, .lightbox video {
-    max-width: 90%;
-    max-height: 80%;
-    object-fit: contain;
 }

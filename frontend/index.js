@@ -1,13 +1,13 @@
 //const API_URL = "http://localhost:8080"
-const API_URL = "http://192.168.1.72:8080"
+const API_URL = "http://192.168.1.72:8080";
 
-// Cargar albumes al inicio
+// Cargar álbumes al inicio
 document.addEventListener("DOMContentLoaded", cargarAlbumes);
 
 async function cargarAlbumes() {
     const response = await fetch(`${API_URL}/api/albumes`);
     const albumes = await response.json();
-    const albumesList = document.getElementById("albumesList")
+    const albumesList = document.getElementById("albumesList");
 
     albumesList.innerHTML = ""; // Limpiar lista
     albumes.forEach(album => {
@@ -15,9 +15,8 @@ async function cargarAlbumes() {
         option.value = album.id;
         option.textContent = album.nombre;
         albumesList.appendChild(option);
-        
     });
-} 
+}
 
 async function cargarFotos() {
     let albumId = document.getElementById("albumesList").value;
@@ -28,7 +27,6 @@ async function cargarFotos() {
 
     let response = await fetch(`${API_URL}/api/media/album/${albumId}`);
     let archivos = await response.json();
-
     currentAlbum = archivos.slice();
 
     let gallery = document.getElementById("gallery");
@@ -42,23 +40,19 @@ async function cargarFotos() {
             let img = document.createElement("img");
             img.src = API_URL + archivo.thumbnailUrl;
             img.alt = archivo.nombreArchivo;
-            //img.onclick = () => window.open(API_URL + archivo.url, "_blank");
-            img.onclick = () => mostrarLightbox(index); // Muestra el lightbox
+            img.onclick = () => mostrarLightbox(index);
             contenedor.appendChild(img);
         } else if (archivo.tipo === "video") {
             let video = document.createElement("video");
             video.src = API_URL + archivo.url;
             video.controls = true;
-            video.width = 200; // Ajusta el tamaño como prefieras
+            video.width = 200;
             video.onclick = () => mostrarLightbox(index);
             contenedor.appendChild(video);
         }
         gallery.appendChild(contenedor);
     });
 }
-
-
-
 
 async function crearAlbum() {
     let nombreAlbum = document.getElementById("nuevoAlbum").value;
@@ -72,12 +66,11 @@ async function crearAlbum() {
 
     if (response.ok) {
         alert("Álbum creado con éxito");
-        cargarAlbumes(); // Actualizar lista de álbumes
+        cargarAlbumes();
         document.getElementById("nuevoAlbum").value = "";
     } else {
         alert("Error al crear el álbum");
     }
-    
 }
 
 async function subirFotos() {
@@ -91,7 +84,6 @@ async function subirFotos() {
         return;
     }
 
-    // 🔹 Ocultar botón y mostrar spinner
     uploadButton.style.display = "none";
     spinner.style.display = "block";
 
@@ -108,7 +100,7 @@ async function subirFotos() {
 
         if (response.ok) {
             alert("Fotos subidas con éxito");
-            cargarFotos(); // 🔹 Actualizar la galería
+            cargarFotos();
             inputFotos.value = "";
         } else {
             alert("Error al subir las fotos");
@@ -117,13 +109,12 @@ async function subirFotos() {
         console.error("Error al subir las fotos:", error);
         alert("Hubo un problema con la subida");
     } finally {
-        // 🔹 Mostrar botón y ocultar spinner cuando termine
         uploadButton.style.display = "block";
         spinner.style.display = "none";
     }
 }
 
-/**   Funciones para el visor de imagens  */
+/** Funciones para el visor de imágenes */
 let currentImageIndex = 0;
 let currentAlbum = [];
 const lightbox = document.getElementById("lightbox");
@@ -135,11 +126,14 @@ function mostrarLightbox(index) {
     lightbox.style.display = "flex";
 }
 
-function cerrarLightbox() {
-    lightbox.style.display = "none";
+function cerrarLightbox(event) {
+    if (event.target === lightbox || event.target.classList.contains("close")) {
+        lightbox.style.display = "none";
+    }
 }
 
-function navegar(direction) {
+function navegar(direction, event) {
+    event.stopPropagation(); // Evita que el evento se propague al lightbox
     currentImageIndex += direction;
 
     // Ajustar el índice para navegar de forma circular
@@ -152,11 +146,9 @@ function navegar(direction) {
 function cargarLightbox() {
     const archivo = currentAlbum[currentImageIndex];
     const url = API_URL + archivo.url;
-    console.log("Cargando en el lightbox (URL): " + url);
-    
-    // Limpiar el contenido del lightbox antes de cargar
+
     lightboxImage.innerHTML = "";
-  
+
     if (archivo.tipo === "imagen") {
         let img = document.createElement("img");
         img.src = url;
@@ -165,7 +157,6 @@ function cargarLightbox() {
         img.style.maxHeight = "80%";
         img.style.objectFit = "contain";
         lightboxImage.appendChild(img);
-        console.log("✅ Imagen añadida al lightbox");
     } else if (archivo.tipo === "video") {
         let video = document.createElement("video");
         video.src = url;
@@ -175,8 +166,5 @@ function cargarLightbox() {
         video.style.maxHeight = "80%";
         video.style.objectFit = "contain";
         lightboxImage.appendChild(video);
-        console.log("✅ Video añadido al lightbox");
     }
-    lightbox.style.display = "flex";
 }
-    

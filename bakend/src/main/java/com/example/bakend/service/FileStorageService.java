@@ -72,6 +72,16 @@ public class FileStorageService {
             Files.createDirectories(albumPath);
         }
 
+        // Ordenar archivos por fecha de ultima modificacion
+        files.sort((file1, file2) -> {
+            try {
+                return Long.compare(file1.getResource().lastModified(), file2.getResource().lastModified());
+            } catch (IOException e) {
+                return 0;
+            }
+        });
+
+
         // 🚀 Paralelismo con Stream y Futures
         files.parallelStream().forEach(file -> {
             try {

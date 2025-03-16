@@ -68,4 +68,15 @@ public class MediaController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @GetMapping("/existe/{hash}")
+    public Optional<Media> existeHash(@PathVariable String hash){
+        return mediaRepository.findByHash(hash);
+    }
+
+    @GetMapping("/hashes")
+    public ResponseEntity<List<String>> obtenerTodosLosHashes(){
+        List<String> hashes = mediaRepository.findAllHash();
+        return ResponseEntity.ok(hashes);
+    }
 }

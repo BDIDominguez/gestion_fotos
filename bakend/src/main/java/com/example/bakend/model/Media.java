@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "media")
+@Table(name = "media", indexes = {@Index(name = "idx_hash", columnList = "hash")})
 @Getter
 @Setter
 @NoArgsConstructor

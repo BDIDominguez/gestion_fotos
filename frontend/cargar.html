@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duplicados</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Verificación de Duplicados</h1>
+
+    <!-- Botón para seleccionar archivos -->
+    <div class="contenedor_cargar">
+        <input type="file" id="fileInput" multiple accept="image/*,video/*">
+        <button id="checkDuplicates" onclick="verificarDuplicados()">Verificar Duplicados</button>
+        <div id="spinner"></div>
+    </div>
+
+    <!-- Galería para mostrar archivos duplicados -->
+    <section class="gallery" id="duplicadosGallery">
+        <!-- Aquí se mostrarán las miniaturas de archivos duplicados -->
+    </section>
+
+    <!-- Botón para cargar los archivos no duplicados -->
+    <button id="uploadButton" onclick="subirArchivos()" style="display: none;">Cargar Archivos</button>
+
+    <script src="cargar.js"></script>
+</body>
+</html>
