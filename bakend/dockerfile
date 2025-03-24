@@ -11,4 +11,4 @@ COPY target/bakend-0.0.1-SNAPSHOT.jar backend.jar
 EXPOSE 8080
 
 # Comando para ejecutar la aplicación
-CMD ["java", "-jar", "backend.jar"]
+CMD ["java","-Xms512m", "-Xmx2g", "-jar", "backend.jar"]

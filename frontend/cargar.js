@@ -1,6 +1,5 @@
 const API_URL = "http://192.168.1.72:8080";
-let archivosNoDuplicados = [];
-let archivosDuplicados = [];
+let listaArchivos = [];
 let hashesExistentes = [];
 
 // Obtener todos los hashes existentes desde el backend
@@ -18,89 +17,111 @@ async function cargarHashesExistentes() {
     }
 }
 
-// verificar archivos duplicados
 async function verificarDuplicados() {
-    const fileImput = document.getElementById("fileInput");
-    const archivos = Array.from(fileInput.files);
-    if (archivos.length === 0) return alert("Selecciona archivos primero");
-
     const spinner = document.getElementById("spinner");
     spinner.style.display = "block";
 
-    // Calcular los hashes usando un web worker
-    const worker = new Worker("hash_worker.js");
-    worker.postMessage(archivos);
-
-    worker.onmessage = async function (event) {
-        const resultados = event.data;
-        archivosNoDuplicados = resultados.filter(r => !hashesExistentes.includes(r.hash));
-        archivosDuplicados = resultados.filter(r => hashesExistentes.includes(r.hash));
-        mostrarDuplicados();
-        spinner.style.display = "none";
-        document.getElementById("uploadButton").style.display = "block";
-        worker.terminate();
-    };
-    
-}
-
-
-
-// Mostrar archivos duplicados
-/*
-function mostrarDuplicados(){
+    const fileInput = document.getElementById("fileInput");
+    const archivos = Array.from(fileInput.files);
+    if (archivos.length === 0) return alert("Seleccione archivos primeros")
+    if (hashesExistentes.length === 0) {
+        await cargarHashesExistentes();
+    }
     const gallery = document.getElementById("duplicadosGallery");
-    gallery.innerHTML = "";
+    gallery.innerHTML = ""; // Limpiar la galería
 
-    archivosDuplicados.forEach(archivo => {
-        let contenedor = document.createElement("div");
-        contenedor.classList.add("media-item");
+    for (const archivo of archivos){
+        let hash = await calcularHash(archivo);
+        let encontrado = hashesExistentes.includes(hash);
+        let objetoArchivo = {file:archivo, hash: hash, repetido: encontrado} 
+        listaArchivos.push(objetoArchivo);
+        if (encontrado){
+            // mostrar imagen en el navegador
+            mostrarDuplicado(objetoArchivo);
+        }
+    }
+    spinner.style.display = "none";
+    // document.getElementById("uploadButton").style.display = "block";
+    // mostrarDuplicados()
 
-        let img = document.createElement("img");
-        img.src = URL.createObjectURL(archivo.file);
-        img.alt = archivo.file.name;
-        contenedor.appendChild(img);
+}   
+     
 
-        let info = document.createElement("p");
-        info.textContent = `Duplicado en album: ${archivo.album}`;
-        contenedor.appendChild(info);
+async function mostrarDuplicado(archivo){
+    try {
+        console.log("URL ", `${API_URL}/api/media/existe/${archivo.hash}`)
+        const response = await fetch(`${API_URL}/api/media/existe/${archivo.hash}`);
+        if (!response.ok) throw new Error("No se pudo obtener la informacion del duplicado");
+        const gallery = document.getElementById("duplicadosGallery");
+        const data = await response.json();
+        const servidorUrl = API_URL + data.url;
+        console.log("Ruta del archivo ", API_URL + data.url)
+        
+        // Crear el contenedor de la comparacion
+        const contenedor = document.createElement("div");
+        contenedor.classList.add("duplicado-item");
 
+        const titulo = document.createElement("p");
+        titulo.textContent = `Archivo Duplicado: ${archivo.file.name} - Nombre en el Servidor: ${data.nombreArchivo}`;
+        contenedor.appendChild(titulo);
+
+        // contenedor de las vistas lado a lado
+        const comparacion = document.createElement("div");
+        comparacion.classList.add("comparacion");
+
+        // Vista Local
+        if (archivo.file.type.startsWith("image")){
+            const imagenLocal = document.createElement("img");
+            imagenLocal.src = URL.createObjectURL(archivo.file);
+            imagenLocal.alt = "imagen Local" 
+            imagenLocal.classList.add("imagen-duplicada");
+            comparacion.appendChild(imagenLocal);
+        }else if(archivo.file.type.startsWith("video")){
+            const videoLocal = document.createElement("video");
+            videoLocal.src = URL.createObjectURL(archivo.file);
+            videoLocal.alt = "Video Local";
+            videoLocal.controls = true;
+            videoLocal.classList.add("imagen-duplicada");
+            comparacion.appendChild(videoLocal);
+        }
+        // Vista Servidor
+        if (data.tipo === "imagen") {
+            const imagenServidor = document.createElement("img");
+            imagenServidor.src = servidorUrl;
+            imagenServidor.alt = "Imagen Servidor";
+            imagenServidor.classList.add("imagen-duplicada");
+            comparacion.appendChild(imagenServidor);
+        } else if (data.tipo === "video") {
+            const videoServidor = document.createElement("video");
+            videoServidor.src = servidorUrl;
+            videoServidor.alt = "Video Servidor";
+            videoServidor.controls = true;
+            videoServidor.classList.add("imagen-duplicada");
+            comparacion.appendChild(videoServidor);
+        }
+        // Añadir comparación al contenedor
+        contenedor.appendChild(comparacion);
         gallery.appendChild(contenedor);
-    })
-} */
-
-function mostrarDuplicados() {
-    const duplicadosContainer = document.getElementById("duplicados");
-    duplicadosContainer.innerHTML = "";
-
-    if (archivosDuplicados.length === 0) {
-        duplicadosContainer.innerHTML = "<p>No hay archivos duplicados.</p>";
-        return;
+    } catch (error) {
+        console.error("Error al obtener la imagen o video del servidor: ",error);
     }
 
-    archivosDuplicados.forEach((archivo) => {
-        const div = document.createElement("div");
-        div.classList.add("duplicado-item");
-
-        // Encontrar el archivo original usando su nombre
-        const file = Array.from(document.getElementById("fileInput").files).find(f => f.name === archivo.fileName);
-
-        if (file) {
-            const url = URL.createObjectURL(file);
-            const img = document.createElement("img");
-            img.src = url;
-            img.alt = archivo.fileName;
-            img.style.width = "100px";
-            img.style.height = "100px";
-            div.appendChild(img);
-        }
-
-        const nombre = document.createElement("p");
-        nombre.textContent = archivo.fileName;
-        div.appendChild(nombre);
-
-        duplicadosContainer.appendChild(div);
-    });
 }
 
+function calcularHash(archivo) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
 
-cargarHashesExistentes();
+        reader.onload = function (e) {
+            const buffer = e.target.result;
+            crypto.subtle.digest("SHA-256", buffer).then((hashBuffer) => {
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, "0")).join("");
+                resolve(hashHex);
+            }).catch(err => reject(err));
+        };
+
+        reader.onerror = () => reject(reader.error);
+        reader.readAsArrayBuffer(archivo);
+    });
+}
